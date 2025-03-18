@@ -8,6 +8,6 @@ public class Song
   public string Title { get; set; }
   public int ArtistId { get; set; }
   public string Album { get; set; }
-  public int Length { get; set; }
+  public decimal Length { get; set; }
   public List<SongGenre> SongGenres { get; set; }
 }

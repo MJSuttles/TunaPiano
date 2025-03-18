@@ -9,5 +9,5 @@ public class Song
   public int ArtistId { get; set; }
   public string Album { get; set; }
   public decimal Length { get; set; }
-  public List<SongGenre> SongGenres { get; set; }
+  public List<Genre> Genres { get; set; }
 }

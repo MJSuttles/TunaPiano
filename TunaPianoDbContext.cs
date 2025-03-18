@@ -2,12 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using TunaPiano.Models;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.Json;
+using TunaPiano.Migrations;
 
 public class TunaPianoDbContext : DbContext
 {
   public DbSet<Artist> Artists { get; set; }
   public DbSet<Song> Songs { get; set; }
-  public DbSet<SongGenre> SongGenres { get; set; }
   public DbSet<Genre> Genres { get; set; }
 
   public TunaPianoDbContext(DbContextOptions<TunaPianoDbContext> context) : base(context)
@@ -17,6 +17,21 @@ public class TunaPianoDbContext : DbContext
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
+
+    // ✅ SEED THE MANY-TO-MANY RELATIONSHIP (SongGenre)
+    modelBuilder.Entity<Song>()
+        .HasMany(s => s.Genres)
+        .WithMany(g => g.Songs)
+        .UsingEntity(j => j.HasData(
+            new { SongsId = 1, GenresId = 2 }, // "Midnight Groove" -> "Rock"
+            new { SongsId = 1, GenresId = 3 }, // "Midnight Groove" -> "Jazz"
+            new { SongsId = 2, GenresId = 1 }, // "Wandering Souls" -> "Indie"
+            new { SongsId = 3, GenresId = 4 }, // "Fiesta Latina" -> "Latin"
+            new { SongsId = 3, GenresId = 5 }, // "Fiesta Latina" -> "Pop"
+            new { SongsId = 4, GenresId = 3 }, // "Moonlit Sonata" -> "Jazz"
+            new { SongsId = 5, GenresId = 2 }, // "Electric Surge" -> "Rock"
+            new { SongsId = 5, GenresId = 1 }  // "Electric Surge" -> "Indie"
+        )); ;
 
     // Seed Data
     modelBuilder.Entity<Artist>().HasData(new Artist[]
@@ -35,15 +50,6 @@ public class TunaPianoDbContext : DbContext
       new Song { Id = 3, Title = "Fiesta Latina", ArtistId = 3, Album = "Dance Fever", Length = 3.33m },
       new Song { Id = 4, Title = "Moonlit Sonata", ArtistId = 4, Album = "Classical Revivals", Length = 5.20m },
       new Song { Id = 5, Title = "Electric Surge", ArtistId = 5, Album = "Voltage High", Length = 4.01m }
-    });
-
-    modelBuilder.Entity<SongGenre>().HasData(new SongGenre[]
-    {
-      new SongGenre { Id = 1, SongId = 1, GenreId = 2 },
-      new SongGenre { Id = 2, SongId = 1, GenreId = 3 },
-      new SongGenre { Id = 3, SongId = 2, GenreId = 1 },
-      new SongGenre { Id = 4, SongId = 3, GenreId = 4 },
-      new SongGenre { Id = 5, SongId = 3, GenreId = 5 }
     });
 
     modelBuilder.Entity<Genre>().HasData(new Genre[]

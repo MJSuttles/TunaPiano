@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.JSInterop.Infrastructure;
+using TunaPiano.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,9 +47,22 @@ app.MapGet("/api/songs", (TunaPianoDbContext db) =>
         .ToList();
 });
 
-// Get a Single Song wiht associated genres and artist details
+// Get a Single Song with associated genres and artist details
 
+app.MapGet("/api/songs/{id}", (TunaPianoDbContext db, int id) =>
+{
+    Song? song = db.Songs
+        .Include(s => s.Artist)
+        .Include(s => s.Genres)
+        .SingleOrDefault(s => s.Id == id);
 
+    if (song == null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(song);
+});
 
 // Create a Song
 

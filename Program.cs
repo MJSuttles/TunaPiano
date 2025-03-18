@@ -1,9 +1,24 @@
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http.Json;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// allows passing datetimes wihtout time zone data
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+// allows our api endpoints to access the database through Entity Framework Core
+builder.Services.AddNpgsql<TunaPianoDbContext>(builder.Configuration[TunaPianoConnectionString"]);
+
+// Set the JSON serializer options
+builder.Services.Configure<JsonOptions>(options =>
+{
+    options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 
 var app = builder.Build();
 
@@ -23,7 +38,7 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),

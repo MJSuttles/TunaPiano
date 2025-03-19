@@ -127,7 +127,19 @@ app.MapGet("/api/artists", (TunaPianoDbContext db) =>
 
 // Get a Single Artist with associated songs
 
+app.MapGet("/api/artists/{id}", (TunaPianoDbContext db, int id) =>
+{
+    Artist? artist = db.Artists
+    .Include(a => a.Songs)
+    .SingleOrDefault(a => a.Id == id);
 
+    if (artist == null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(artist);
+});
 
 // Create an Artist
 

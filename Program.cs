@@ -66,17 +66,17 @@ app.MapGet("/api/songs/{id}", (TunaPianoDbContext db, int id) =>
 
 // Create a Song
 
-app.MapPost("/api/songs", async (TunaPianoDbContext db, Song newSong) =>
+app.MapPost("/api/songs", (TunaPianoDbContext db, Song newSong) =>
 {
     // ✅ Ensure the artist exists
-    bool artistExists = await db.Artists.AnyAsync(a => a.Id == newSong.ArtistId);
+    bool artistExists = db.Artists.Any(a => a.Id == newSong.ArtistId);
     if (!artistExists)
     {
         return Results.BadRequest("Artist not found.");
     }
 
     db.Songs.Add(newSong);
-    await db.SaveChangesAsync();
+    db.SaveChanges();
 
     return Results.Created($"/api/songs/{newSong.Id}", newSong);
 });
@@ -103,7 +103,18 @@ app.MapPut("/api/songs/{id}", async (TunaPianoDbContext db, int id, Song song) =
 
 // Delete a Song
 
+app.MapDelete("/api/songs/{id}", (TunaPianoDbContext db, int id) =>
+{
+    Song song = db.Songs.SingleOrDefault(s => s.Id == id);
+    if (song == null)
+    {
+        return Results.NotFound();
+    }
 
+    db.Songs.Remove(song);
+    db.SaveChanges();
+    return Results.NoContent();
+});
 
 // Artist Calls
 

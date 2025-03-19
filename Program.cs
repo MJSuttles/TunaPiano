@@ -143,7 +143,12 @@ app.MapGet("/api/artists/{id}", (TunaPianoDbContext db, int id) =>
 
 // Create an Artist
 
-
+app.MapPost("/api/artists", (TunaPianoDbContext db, Artist newArtist) =>
+{
+    db.Artists.Add(newArtist);
+    db.SaveChanges();
+    return Results.Created($"/api/artists/{newArtist.Id}", newArtist);
+});
 
 // Update an Artist
 

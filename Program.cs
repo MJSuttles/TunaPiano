@@ -191,6 +191,21 @@ app.MapGet("/api/genres", (TunaPianoDbContext db) =>
     return db.Genres.ToList();
 });
 
+// Get a Single Genre with Its Associated Songs
+
+app.MapGet("/api/genres/{id}", (TunaPianoDbContext db, int id) =>
+{
+    Genre? genre = db.Genres
+        .Include(g => g.Songs)
+        .SingleOrDefault(g => g.Id == id);
+
+    if (genre == null)
+    {
+        return Results.NotFound();
+    }
+    return Results.Ok(genre);
+});
+
 // Create a Genre
 
 

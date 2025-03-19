@@ -170,7 +170,17 @@ app.MapPut("/api/artists/{id}", (TunaPianoDbContext db, int id, Artist artist) =
 
 // Delete an Artist
 
-
+app.MapDelete("/api/artists/{id}", (TunaPianoDbContext db, int id) =>
+{
+    Artist artist = db.Artists.SingleOrDefault(a => a.Id == id);
+    if (artist == null)
+    {
+        return Results.NotFound();
+    }
+    db.Artists.Remove(artist);
+    db.SaveChanges();
+    return Results.NoContent();
+});
 
 // Genre Calls
 

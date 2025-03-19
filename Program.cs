@@ -186,7 +186,10 @@ app.MapDelete("/api/artists/{id}", (TunaPianoDbContext db, int id) =>
 
 // Get All Genres
 
-
+app.MapGet("/api/genres", (TunaPianoDbContext db) =>
+{
+    return db.Genres.ToList();
+});
 
 // Create a Genre
 

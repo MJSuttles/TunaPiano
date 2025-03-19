@@ -120,7 +120,10 @@ app.MapDelete("/api/songs/{id}", (TunaPianoDbContext db, int id) =>
 
 // Get All Artists
 
-
+app.MapGet("/api/artists", (TunaPianoDbContext db) =>
+{
+    return db.Artists.ToList();
+});
 
 // Get a Single Artist with associated songs
 

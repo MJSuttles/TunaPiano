@@ -195,7 +195,10 @@ app.MapGet("/api/genres", (TunaPianoDbContext db) =>
 
 app.MapGet("/api/genres/{id}", (TunaPianoDbContext db, int id) =>
 {
-    Genre genre = db.Genres.SingleOrDefault(g => g.Id == id);
+    Genre? genre = db.Genres
+        .Include(g => g.Songs)
+        .SingleOrDefault(g => g.Id == id);
+
     if (genre == null)
     {
         return Results.NotFound();

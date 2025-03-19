@@ -75,19 +75,6 @@ app.MapPost("/api/songs", async (TunaPianoDbContext db, Song newSong) =>
         return Results.BadRequest("Artist not found.");
     }
 
-    // ✅ Convert Genre IDs to actual Genre objects
-    List<Genre> genresToAttach = await db.Genres
-        .Where(g => newSong.Genres.Select(genre => genre.Id).Contains(g.Id))
-        .ToListAsync();
-
-    // ✅ Attach existing Genres instead of re-adding them
-    foreach (var genre in genresToAttach)
-    {
-        db.Attach(genre);
-    }
-
-    newSong.Genres = genresToAttach;
-
     db.Songs.Add(newSong);
     await db.SaveChangesAsync();
 
@@ -97,7 +84,22 @@ app.MapPost("/api/songs", async (TunaPianoDbContext db, Song newSong) =>
 
 // Update a Song
 
+app.MapPut("/api/songs/{id}", async (TunaPianoDbContext db, int id, Song song) =>
+{
+    Song updatedSong = db.Songs.SingleOrDefault(s => s.Id == id);
+    if (updatedSong == null)
+    {
+        return Results.NotFound();
+    }
 
+    updatedSong.Title = song.Title;
+    updatedSong.ArtistId = song.ArtistId;
+    updatedSong.Album = song.Album;
+    updatedSong.Length = song.Length;
+
+    db.SaveChanges();
+    return Results.NoContent();
+});
 
 // Delete a Song
 

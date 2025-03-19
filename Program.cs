@@ -208,7 +208,12 @@ app.MapGet("/api/genres/{id}", (TunaPianoDbContext db, int id) =>
 
 // Create a Genre
 
-
+app.MapPost("/api/genres", (TunaPianoDbContext db, Genre newGenre) =>
+{
+    db.Genres.Add(newGenre);
+    db.SaveChanges();
+    return Results.Created($"/api/genres/{newGenre.Id}", newGenre);
+});
 
 // Update a Genre
 

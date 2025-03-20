@@ -233,6 +233,17 @@ app.MapPut("/api/genres/{id}", (TunaPianoDbContext db, int id, Genre genre) =>
 
 // Delete a Genre
 
+app.MapDelete("/api/genres/{id}", (TunaPianoDbContext db, int id) =>
+{
+    Genre genre = db.Genres.SingleOrDefault(g => g.Id == id);
+    if (genre == null)
+    {
+        return Results.NotFound();
+    }
 
+    db.Genres.Remove(genre);
+    db.SaveChanges();
+    return Results.NoContent();
+});
 
 app.Run();

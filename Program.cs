@@ -206,6 +206,23 @@ app.MapGet("/api/genres/{id}", (TunaPianoDbContext db, int id) =>
     return Results.Ok(genre);
 });
 
+// Popular Songs by Genre
+
+app.MapGet("/api/genres/popular", async (TunaPianoDbContext db) =>
+{
+    List<PopularGenreDto> popularGenres = await db.Genres
+        .Select(g => new PopularGenreDto
+        {
+            Id = g.Id,
+            Description = g.Description,
+            SongCount = g.Songs.Count
+        })
+        .OrderByDescending(g => g.SongCount)
+        .ToListAsync();
+
+    return Results.Ok(new { genres = popularGenres });
+});
+
 // Create a Genre
 
 app.MapPost("/api/genres", (TunaPianoDbContext db, Genre newGenre) =>

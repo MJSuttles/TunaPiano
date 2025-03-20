@@ -270,7 +270,7 @@ app.MapGet("/api/songs/genre/{genreName}", async (TunaPianoDbContext db, string 
 {
     // ✅ Fetch songs directly by genre name (case-insensitive)
     List<SongDto> songs = await db.Songs
-        .Where(s => s.Genres.Any(g => g.Description.ToLower() == genreName.ToLower())) // ✅ Use Description, not Id
+        .Where(s => s.Genres.Any(g => g.Description.ToLower() == genreName.ToLower()))
         .Select(s => new SongDto
         {
             Id = s.Id,
@@ -287,6 +287,27 @@ app.MapGet("/api/songs/genre/{genreName}", async (TunaPianoDbContext db, string 
     }
 
     return Results.Ok(new { songs });
+});
+
+app.MapGet("/api/artists/search/{genreName}", async (TunaPianoDbContext db, string genreName) =>
+{
+    List<ArtistDto> artists = await db.Artists
+        .Where(a => a.Songs.Any(s => s.Genres.Any(g => g.Description.ToLower() == genreName.ToLower())))
+        .Select(a => new ArtistDto
+        {
+            Id = a.Id,
+            Name = a.Name,
+            Age = a.Age,
+            Bio = a.Bio
+        })
+        .ToListAsync();
+
+    if (!artists.Any())
+    {
+        return Results.NotFound($"No artists found for genre '{genreName}'.");
+    }
+
+    return Results.Ok(new { artists });
 });
 
 

@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
@@ -262,5 +263,32 @@ app.MapDelete("/api/genres/{id}", (TunaPianoDbContext db, int id) =>
     db.SaveChanges();
     return Results.NoContent();
 });
+
+// Search Calls
+
+app.MapGet("/api/songs/genre/{genreName}", async (TunaPianoDbContext db, string genreName) =>
+{
+    // ✅ Fetch songs directly by genre name (case-insensitive)
+    List<SongDto> songs = await db.Songs
+        .Where(s => s.Genres.Any(g => g.Description.ToLower() == genreName.ToLower())) // ✅ Use Description, not Id
+        .Select(s => new SongDto
+        {
+            Id = s.Id,
+            Title = s.Title,
+            ArtistId = s.ArtistId,
+            Album = s.Album,
+            Length = s.Length
+        })
+        .ToListAsync();
+
+    if (!songs.Any())
+    {
+        return Results.NotFound($"No songs found for genre '{genreName}'.");
+    }
+
+    return Results.Ok(new { songs });
+});
+
+
 
 app.Run();
